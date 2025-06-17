@@ -14,17 +14,13 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
     OPENAI_MODEL: str = "gpt-4-turbo-preview"
     
-    # AWS Configuration
-    AWS_ACCESS_KEY_ID: str = os.getenv("AWS_ACCESS_KEY_ID", "")
-    AWS_SECRET_ACCESS_KEY: str = os.getenv("AWS_SECRET_ACCESS_KEY", "")
-    AWS_REGION: str = os.getenv("AWS_REGION", "us-east-1")
-    
     # Security
     API_KEY_HEADER: str = "X-API-Key"
     API_KEY: str = os.getenv("API_KEY", "")
     
-    # Document Storage
-    DOCUMENT_BUCKET: str = os.getenv("DOCUMENT_BUCKET", "company-policies")
+    # Local Storage
+    STORAGE_DIR: str = os.getenv("STORAGE_DIR", "storage")
+    POLICIES_DIR: str = os.path.join(STORAGE_DIR, "policies")
     
     class Config:
         case_sensitive = True

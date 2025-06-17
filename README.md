@@ -5,7 +5,7 @@ An intelligent server that answers company-specific questions based on company p
 ## Features
 
 - Question answering from company policies and standards
-- AWS serverless architecture
+- Local file-based storage for policies
 - Secure API endpoints
 - Easy policy document ingestion
 - Real-time responses
@@ -13,10 +13,10 @@ An intelligent server that answers company-specific questions based on company p
 ## Architecture
 
 The system uses:
-- AWS Lambda for serverless compute
-- API Gateway for REST API endpoints
+- FastAPI for the backend server
 - OpenAI's GPT models for question answering
 - LangChain for document processing and retrieval
+- Local file system for policy storage
 
 ## Setup
 
@@ -29,13 +29,13 @@ pip install -r requirements.txt
 Create a `.env` file with:
 ```
 OPENAI_API_KEY=your_openai_api_key
-AWS_ACCESS_KEY_ID=your_aws_access_key
-AWS_SECRET_ACCESS_KEY=your_aws_secret_key
+API_KEY=your_api_key
+STORAGE_DIR=storage  # Optional, defaults to 'storage'
 ```
 
-3. Deploy to AWS:
+3. Run the server:
 ```bash
-# Instructions for AWS deployment will be added
+uvicorn app.main:app --reload
 ```
 
 ## Project Structure
@@ -52,6 +52,8 @@ AWS_SECRET_ACCESS_KEY=your_aws_secret_key
 │   │   ├── llm_service.py
 │   │   └── document_service.py
 │   └── main.py
+├── storage/
+│   └── policies/  # Where policy documents are stored
 ├── tests/
 ├── requirements.txt
 └── README.md
@@ -68,13 +70,22 @@ uvicorn app.main:app --reload
 ```bash
 curl -X POST "http://localhost:8000/api/v1/ask" \
      -H "Content-Type: application/json" \
+     -H "X-API-Key: your_api_key" \
      -d '{"question": "What is our company's remote work policy?"}'
+```
+
+3. Ingest a new policy document:
+```bash
+curl -X POST "http://localhost:8000/api/v1/ingest" \
+     -H "Content-Type: application/json" \
+     -H "X-API-Key: your_api_key" \
+     -d '{"content": "Your policy document text here", "name": "remote_work_policy.txt"}'
 ```
 
 ## Security
 
 - All API endpoints are secured with API keys
-- Company documents are encrypted at rest
+- Policy documents are stored locally in the specified storage directory
 - Access logging for audit trails
 
 ## Contributing

@@ -2,7 +2,7 @@ from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 from langchain.chains import LLMChain
 from app.core.config import settings
-import boto3
+import os
 import json
 
 class LLMService:
@@ -12,12 +12,8 @@ class LLMService:
             model_name=settings.OPENAI_MODEL,
             temperature=0.1
         )
-        self.s3_client = boto3.client(
-            's3',
-            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-            region_name=settings.AWS_REGION
-        )
+        # Ensure storage directories exist
+        os.makedirs(settings.POLICIES_DIR, exist_ok=True)
         
     def _get_relevant_context(self, question: str) -> str:
         # TODO: Implement vector search to find relevant policy documents
@@ -57,12 +53,10 @@ class LLMService:
     
     async def ingest_document(self, document_text: str, document_name: str):
         try:
-            # Store document in S3
-            self.s3_client.put_object(
-                Bucket=settings.DOCUMENT_BUCKET,
-                Key=f"policies/{document_name}",
-                Body=document_text
-            )
+            # Store document in local filesystem
+            file_path = os.path.join(settings.POLICIES_DIR, document_name)
+            with open(file_path, 'w', encoding='utf-8') as f:
+                f.write(document_text)
             return {"status": "success", "message": f"Document {document_name} ingested successfully"}
         except Exception as e:
             raise Exception(f"Error ingesting document: {str(e)}") 
